@@ -29,23 +29,29 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "generate-api": "openapi-typescript-codegen --input open_api_spec.json --output ./src/api/generated --client axios"
+    "generate-api": "openapi-typescript-codegen --input open_api_spec.json --output ./src/api/generated --client axios",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
   },
   "dependencies": {
-    "vue": "^3.4.21",
-    "vue-router": "^4.3.0",
+    "axios": "^1.6.7",
     "pinia": "^2.1.7",
-    "axios": "^1.6.7"
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
-    "typescript": "^5.4.3",
-    "vue-tsc": "^2.0.6",
-    "vite": "^5.1.6",
-    "tailwindcss": "^3.4.1",
-    "postcss": "^8.4.35",
+    "@vitest/ui": "^4.0.14",
+    "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.18",
-    "openapi-typescript-codegen": "^0.25.0"
+    "happy-dom": "^20.0.11",
+    "openapi-typescript-codegen": "^0.25.0",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.4.3",
+    "vite": "^5.1.6",
+    "vitest": "^4.0.14",
+    "vue-tsc": "^2.0.6"
   }
 }
-

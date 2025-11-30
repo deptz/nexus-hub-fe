@@ -176,24 +176,72 @@
           <pre class="text-sm">{{ JSON.stringify(statusResult, null, 2) }}</pre>
         </div>
       </div>
+
+      <div v-if="statusResult && !jobId" class="bg-white shadow rounded-lg p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Message Response</h2>
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <p class="text-sm font-medium text-gray-700">Status</p>
+              <p class="text-sm text-gray-900">{{ statusResult.status }}</p>
+            </div>
+            <div v-if="statusResult.latency_ms">
+              <p class="text-sm font-medium text-gray-700">Latency</p>
+              <p class="text-sm text-gray-900">{{ statusResult.latency_ms }} ms</p>
+            </div>
+            <div v-if="statusResult.tool_calls_executed !== undefined">
+              <p class="text-sm font-medium text-gray-700">Tool Calls Executed</p>
+              <p class="text-sm text-gray-900">{{ statusResult.tool_calls_executed }}</p>
+            </div>
+          </div>
+          
+          <div v-if="statusResult.metadata" class="border-t pt-4">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">Metadata</h3>
+            <div class="flex flex-wrap gap-2">
+              <router-link
+                v-if="statusResult.metadata.plan_id"
+                :to="`/plans/${statusResult.metadata.plan_id}`"
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
+              >
+                Plan: {{ statusResult.metadata.plan_id.substring(0, 8) }}...
+              </router-link>
+              <router-link
+                v-if="statusResult.metadata.task_id"
+                :to="`/tasks/${statusResult.metadata.task_id}`"
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200"
+              >
+                Task: {{ statusResult.metadata.task_id.substring(0, 8) }}...
+              </router-link>
+            </div>
+          </div>
+
+          <div class="border-t pt-4">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">Response Details</h3>
+            <pre class="text-xs bg-gray-50 p-3 rounded overflow-auto">{{ JSON.stringify(statusResult, null, 2) }}</pre>
+          </div>
+        </div>
+      </div>
     </div>
   </ApiLayout>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import ApiLayout from '@/components/layout/ApiLayout.vue'
 import FormInput from '@/components/common/FormInput.vue'
 import ErrorMessage from '@/components/common/ErrorMessage.vue'
 import { useMessages } from '@/composables/useMessages'
 import { useAuth } from '@/composables/useAuth'
+import { useMessagesStore } from '@/stores/messages'
 import type { CanonicalMessage } from '@/api/generated/models/CanonicalMessage'
+import type { ExtendedInboundMessageResponse } from '@/api/types'
 
 const { tenantId } = useAuth()
+const messagesStore = useMessagesStore()
 const { loading, error, sendInboundMessage, getMessageStatus, clearError } = useMessages(tenantId.value || undefined)
 
 const jobId = ref<string | null>(null)
-const statusResult = ref<any>(null)
+const statusResult = ref<ExtendedInboundMessageResponse | null>(null)
 
 const form = ref<CanonicalMessage & { async_processing: boolean }>({
   id: crypto.randomUUID(),
@@ -221,7 +269,26 @@ const form = ref<CanonicalMessage & { async_processing: boolean }>({
   async_processing: false,
 })
 
+// Auto-populate tenant_id from auth store when available
+watch(tenantId, (newTenantId) => {
+  if (newTenantId && !form.value.tenant_id) {
+    form.value.tenant_id = newTenantId
+  }
+}, { immediate: true })
+
 async function handleSendMessage() {
+  // Validate from.external_id is not empty
+  if (!form.value.from.external_id || form.value.from.external_id.trim() === '') {
+    messagesStore.setError('Message must include user external_id in \'from\' field')
+    return
+  }
+
+  // Validate tenant_id matches API key tenant_id
+  if (tenantId.value && form.value.tenant_id !== tenantId.value) {
+    messagesStore.setError('Tenant ID mismatch - Tenant ID must match your API key')
+    return
+  }
+
   try {
     const { async_processing, ...message } = form.value
     const result = await sendInboundMessage(message, async_processing)

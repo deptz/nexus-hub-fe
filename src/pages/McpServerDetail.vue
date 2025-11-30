@@ -179,10 +179,10 @@
                 Delete
               </button>
             </div>
-            <div v-if="Object.keys(tool.schema || {}).length > 0" class="mt-2">
+            <div v-if="Object.keys((tool as any).json_schema || tool.schema || {}).length > 0" class="mt-2">
               <details>
                 <summary class="cursor-pointer text-sm text-gray-600">Schema</summary>
-                <pre class="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">{{ JSON.stringify(tool.schema, null, 2) }}</pre>
+                <pre class="mt-2 p-2 bg-gray-100 rounded text-xs overflow-auto">{{ JSON.stringify((tool as any).json_schema || tool.schema, null, 2) }}</pre>
               </details>
             </div>
             <div class="mt-2 text-xs text-gray-500">

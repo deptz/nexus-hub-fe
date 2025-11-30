@@ -2,6 +2,8 @@
  * Custom API types and interfaces
  */
 
+import type { InboundMessageResponse } from './generated/models/InboundMessageResponse'
+
 export interface ApiResponse<T = any> {
   data: T
   status: number
@@ -42,3 +44,13 @@ export interface CreateApiKeyResponse {
   rate_limit_per_minute: number
 }
 
+/**
+ * Extended InboundMessageResponse with metadata field
+ * (metadata is returned by backend but not in OpenAPI spec yet)
+ */
+export interface ExtendedInboundMessageResponse extends InboundMessageResponse {
+  metadata?: {
+    plan_id?: string
+    task_id?: string
+  }
+}

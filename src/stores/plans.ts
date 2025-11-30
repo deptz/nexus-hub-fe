@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import type { PlanResponse } from '@/api/generated/models/PlanResponse'
 
-export const useTenantStore = defineStore('tenant', () => {
-  const prompt = ref<string | null>(null)
+export const usePlansStore = defineStore('plans', () => {
+  const currentPlan = ref<PlanResponse | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  function setPrompt(p: string | null) {
-    prompt.value = p
+  function setCurrentPlan(plan: PlanResponse | null) {
+    currentPlan.value = plan
   }
 
   function clearError() {
@@ -19,13 +20,11 @@ export const useTenantStore = defineStore('tenant', () => {
   }
 
   return {
-    prompt,
+    currentPlan,
     loading,
     error,
-    setPrompt,
+    setCurrentPlan,
     clearError,
     setError,
   }
 })
-
-

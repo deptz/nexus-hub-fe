@@ -141,6 +141,24 @@ const router = createRouter({
       meta: { requiresAuth: false },
     },
     {
+      path: '/plans/:id',
+      name: 'PlanDetail',
+      component: () => import('@/pages/PlanDetail.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/tasks',
+      name: 'Tasks',
+      component: () => import('@/pages/Tasks.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/tasks/:id',
+      name: 'TaskDetail',
+      component: () => import('@/pages/TaskDetail.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('@/pages/NotFound.vue'),

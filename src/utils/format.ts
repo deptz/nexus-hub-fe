@@ -50,3 +50,4 @@ export function truncate(text: string, length: number): string {
   return text.substring(0, length) + '...'
 }
 
+
